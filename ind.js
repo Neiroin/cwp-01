@@ -1,26 +1,48 @@
+//console.log('Hello World');
+
+/*const name = process.argv[2];
+console.log(`Hi ${name}!`);
+
+for (let i = 2; i < process.argv.length; i ++)
+{
+   console.log(process.argv[i]);
+}*/
 const fs=require("fs");
 const path=require("path")
-const dir_path=process.argv[2];
-const full_path=dir_path+'/'+path.basename(dir_path);
-let newDir = dir_path + path.sep;
-let files_1;
-fs.mkdir(full_path, function (err) {
+
+if (process.argv.length < 3) {
+  console.log("Укажите путь к директории");
+  process.exit();
+}
+else if (process.argv.length > 3) {
+  console.log("Аргументов должно быть <1");
+  process.exit();
+}
+
+
+
+const standpath=process.argv[2];
+const newdir_path=standpath+'/'+path.basename(standpath);
+
+fs.access(newdir_path,(err)=>{
+  if(err && err.code=='ENOENT'){
+fs.mkdir(newdir_path, function (err) {
   (
-    function getFiles(dir, files_) {
+    function getFiles(dir) {
       fs.readdir(dir, function (err, files) {
         for (let i in files) {
           let name = dir + '/' + files[i];
           fs.stat(name, (err, stats) => {
             if (stats.isDirectory()) {
-              getFiles(name, files_);
+              getFiles(name);
             } else {
               let filename = path.basename(name);
               let extname = path.extname(filename);
-              let contents = fs.readFile("C:/Users/DELL/Desktop/study/cwp/cwp-01/config.json", "utf8", function (err, data) {
+              fs.readFile("C:/Users/DELL/Desktop/study/cwp/cwp-01/cop.json", "utf8", function (err, data) {
                 let copright = JSON.parse(data).copyright;
                 if (extname == ".txt") {
                   fileContent = fs.readFile(name, "utf8", function (err, data) {
-                    fs.appendFile(full_path + '/' + filename, copright + "\n" + data + "\n", function (err) {
+                    fs.appendFile(newdir_path + '/' + filename, copright + '\n' + data + "\n", function (err) {
                       if (err) throw err;
                     });
                     if (err) throw err;
@@ -28,7 +50,7 @@ fs.mkdir(full_path, function (err) {
                 }
                 if (err) throw err;
               })
-              fs.appendFile(path.resolve(dir_path + "/summary.js"), `console.log('${name.substring(dir_path.length)}');`+'\n', function(err) {
+              fs.appendFile(path.resolve(standpath + "/summary.js"), `console.log('${name.substring(standpath.length)}');`+'\n', function(err) {
                 if(err) throw err; 
                 }); 
             }
@@ -37,11 +59,17 @@ fs.mkdir(full_path, function (err) {
       });
 
     }
-  )(dir_path, null);
+  )(standpath, null);
   if (err) throw err;
 });
-fs.watch(full_path, (eventType, fileNames) => {
+fs.watch(newdir_path, (eventType, fileNames) => {
   if (fileNames) {
       console.log(fileNames.toString()+" changed");
   }
+});
+
+}
+else{
+    console.log("This directory is alredy created!");
+}
 });
